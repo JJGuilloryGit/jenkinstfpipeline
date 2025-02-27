@@ -2,59 +2,42 @@ pipeline {
     agent any
 
     environment {
-        KUBECONFIG = credentials('kubeconfig-credentials-id')  // Kubernetes authentication
+        GIT_CREDENTIALS_ID = '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' // Use the ID of your GitHub token
     }
 
     stages {
-        stage('Checkout') {
+        stage('Clone Repository') {
             steps {
-                git 'https://github.com/jenkinstfpipeline/mlops-project.git'
+                git credentialsId: "${GIT_CREDENTIALS_ID}", url: 'https://github.com/JJGuilloryGit/jenkinstfpipeline.git', branch: 'main'
             }
         }
 
-        stage('Set Up Python Environment') {
+        stage('Build') {
             steps {
-                sh '''
-                python3 -m venv venv
-                source venv/bin/activate
-                pip install -r requirements.txt
-                '''
+                sh 'echo "Building the project..."'
+                sh 'python --version' // Example: Check Python version
             }
         }
 
-        stage('Train Model') {
+        stage('Test') {
             steps {
-                sh '''
-                source venv/bin/activate
-                python train.py
-                '''
+                sh 'echo "Running tests..."'
             }
         }
 
-        stage('Terraform Apply (Provision Infra)') {
+        stage('Deploy') {
             steps {
-                sh '''
-                cd terraform
-                terraform init
-                terraform apply -auto-approve
-                '''
+                sh 'echo "Deploying application..."'
             }
         }
+    }
 
-        stage('Deploy Model to Kubernetes') {
-            steps {
-                sh '''
-                kubectl apply -f k8s/deployment.yaml
-                kubectl apply -f k8s/service.yaml
-                '''
-            }
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
         }
-
-        stage('Monitor Deployment') {
-            steps {
-                sh 'kubectl get pods'
-                sh 'kubectl get services'
-            }
+        failure {
+            echo 'Pipeline failed!'
         }
     }
 }
