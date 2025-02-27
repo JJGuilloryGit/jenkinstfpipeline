@@ -2,15 +2,21 @@ pipeline {
     agent any
 
     environment {
-        GIT_CREDENTIALS_ID = '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' // Use the ID of your GitHub token
+        GIT_CREDENTIALS_ID = credentials('github-token')
     }
 
     stages {
         stage('Clone Repository') {
             steps {
-                git credentialsId: "${GIT_CREDENTIALS_ID}", url: 'https://github.com/JJGuilloryGit/jenkinstfpipeline.git', branch: 'main'
+                git credentialsId: "github-token", 
+                    url: 'https://github.com/JJGuilloryGit/jenkinstfpipeline.git', 
+                    branch: 'main'
             }
         }
+        // rest of your stages...
+    }
+}
+
 
         stage('Build') {
             steps {
