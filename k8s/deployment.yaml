@@ -1,18 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ml-model
+  name: retail-forecast-app
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
-      app: ml-model
+      app: retail-forecast
   template:
     metadata:
       labels:
-        app: ml-model
+        app: retail-forecast
     spec:
       containers:
-        - name: ml-model
-          image: python:3.8
-          command: ["python3", "train.py"]
+      - name: retail-forecast
+        image: ${ECR_REPO}:latest
+        ports:
+        - containerPort: 5000
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
